@@ -102,7 +102,7 @@ contract NFTMarketTest is Test {
         nftContract.approve(marketAddr, 0);
         nftMarketContract.list(nftAddr, 0, 100 * 10 ** 18);
         vm.stopPrank();
-        bytes memory _data = abi.encode(0, nftAddr);
+        bytes memory _data = abi.encode(nftAddr, 0);
         vm.prank(alice);
         nftMarketContract.tokensReceived(
             alice,

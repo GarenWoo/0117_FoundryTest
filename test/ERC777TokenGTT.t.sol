@@ -60,23 +60,27 @@ contract ERC777TokenGTTTest is Test {
 
     function test_ERC777TokenGTT_transferWithCallbackForNFT() public {
         vm.startPrank(alice);
-        nftContract.mint(bob, "No.0");
+        nftContract.mint(alice, "No.0");
+        nftContract.mint(bob, "No.1");
         tokenContract.approve(marketAddr, 10000 * 10 ** 18);
         vm.startPrank(bob);
-        nftContract.approve(marketAddr, 0);
-        nftMarketContract.list(nftAddr, 0, 100 * 10 ** 18);
+        nftContract.approve(marketAddr, 1);
+        nftMarketContract.list(nftAddr, 1, 100 * 10 ** 18);
         vm.stopPrank();
-        bytes memory _data = abi.encode(0, nftAddr);
+        bytes memory _data = abi.encode(nftAddr, 1);
+        console.log("NFTMarket_tokensReceived=>transferWithCallbackForNFT@ERC777TokenGTT|marketAddr: ", marketAddr);
+        console.logBytes(_data);
         vm.prank(alice);
-        tokenContract.transferWithCallbackForNFT(
+        bool success = tokenContract.transferWithCallbackForNFT(
             marketAddr,
             101 * 10 ** 18,
             _data
         );
         assertEq(
-            nftContract.ownerOf(0),
+            nftContract.ownerOf(1),
             alice,
-            "expect the current owner of #0 NFT is alice after transferring token to NFTMarket"
+            "expect the current owner of #1 NFT is alice after transferring token to NFTMarket"
         );
+        assertTrue(success, "expect transferWithCallbackForNFT is successfully executed");
     }
 }

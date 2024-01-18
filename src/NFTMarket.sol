@@ -38,12 +38,12 @@ contract NFTMarket is IERC721Receiver {
         uint _amount,
         bytes calldata _data
     ) external {
-        (uint256 tokenId, address nftAddress) = _decodeUnfixed(_data);
+        (address nftAddress, uint256 tokenId) = _decode(_data);
         _updateNFT(_recipient, _calledContract, nftAddress, tokenId, _amount);
     }
 
     // Before calling this function, need to approve this contract as an operator of the corresponding tokenId!
-    function list(address _nftAddr, uint _tokenId, uint _price) external {
+    function list(address _nftAddr, uint256 _tokenId, uint _price) external {
         if (msg.sender != IERC721(_nftAddr).ownerOf(_tokenId))
             revert NotOwner();
         if (_price == 0) revert ZeroPrice();
@@ -80,7 +80,7 @@ contract NFTMarket is IERC721Receiver {
     }
 
     // Before calling this function, need to approve this contract with enough allowance!
-    function buy(address _nftAddr, uint _tokenId, uint _bid) external {
+    function buy(address _nftAddr, uint256 _tokenId, uint _bid) external {
         _updateNFT(msg.sender, address(this), _nftAddr, _tokenId, _bid);
     }
 
@@ -96,7 +96,7 @@ contract NFTMarket is IERC721Receiver {
         address _recipient,
         address _calledContract,
         address _nftAddr,
-        uint _tokenId,
+        uint256 _tokenId,
         uint _tokenAmount
     ) internal {
         if (onSale[_nftAddr][_tokenId] != true) {
@@ -123,11 +123,14 @@ contract NFTMarket is IERC721Receiver {
         onSale[_nftAddr][_tokenId] = false;
     }
 
-    function _decodeUnfixed(
+    function _decode(
         bytes calldata _data
-    ) public pure returns (uint256, address) {
-        (uint256 tokenId, address NFTAddress) = abi.decode(_data, (uint256, address));
-        return (tokenId, NFTAddress);
+    ) public pure returns (address, uint256) {
+        (address NFTAddress, uint256 rawTokenId) = abi.decode(
+            _data,
+            (address, uint256)
+        );
+        return (NFTAddress, rawTokenId);
     }
 
     function getPrice(

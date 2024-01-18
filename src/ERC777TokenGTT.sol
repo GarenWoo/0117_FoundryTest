@@ -17,7 +17,7 @@ interface INFTMarket {
         address,
         uint,
         bytes calldata
-    ) external returns (bool);
+    ) external;
 }
 
 contract ERC777TokenGTT is ERC20, ERC20Permit, ReentrancyGuard {
@@ -70,19 +70,14 @@ contract ERC777TokenGTT is ERC20, ERC20Permit, ReentrancyGuard {
     }
 
     // ERC721 Token Callback:
-    // @param: _data contains information of NFT, including tokenId and so on.
+    // @param: _data contains information of NFT, including ERC721Token address, tokenId and other potential information.
     function transferWithCallbackForNFT(
         address _to,
         uint _bidAmount,
         bytes calldata _data
     ) external nonReentrant returns (bool) {
         if (_isContract(_to)) {
-            INFTMarket(_to).tokensReceived(
-                msg.sender,
-                _to,
-                _bidAmount,
-                _data
-            );
+            INFTMarket(_to).tokensReceived(msg.sender, _to, _bidAmount, _data);
         } else {
             revert NotContract();
         }
